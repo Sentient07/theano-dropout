@@ -18,18 +18,14 @@ def _dropsout(rng, layer, p):
     srng = theano.tensor.shared_randomstreams.RandomStreams(rng.randint(1000))
     mask = srng.binomial(n=1, p=1-p, size=layer.shape)
     output = layer*T.cast(mask, theano.config.floatX)
-    return output * (1 - p)
+    return output / (1 - p)
     
 
 class DropoutMLP(object):
-    """Multi-Layer Perceptron Class
+    """Multi-Layer Perceptron Class with partial hidden units
 
-    A multilayer perceptron is a feedforward artificial neural network model
-    that has one layer or more of hidden units and nonlinear activations.
-    Intermediate layers usually have as activation function tanh or the
-    sigmoid function (defined here by a ``HiddenLayer`` class)  while the
-    top layer is a softmax layer (defined here by a ``LogisticRegression``
-    class).
+    An implementation of Multilayer Perceptron with dropping of hidden units at a probability 
+    given by ```1-dropout_rate```.
     """
 
     def __init__(self, rng, input, n_in, n_hidden, dropout_rates, n_out):
@@ -174,7 +170,7 @@ def test_mlp(learning_rate=0.01, n_epochs=1000, dropout_rates = [0.2, 0.5],
 
 
     # construct the MLP class
-    classifier = DropoutMLP(
+    classifier = HiddenMLP(
         rng=rng,
         input=x,
         n_in=28 * 28,
